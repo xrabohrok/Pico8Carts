@@ -111,6 +111,28 @@ function swing_reel(target
 	
 end
 
+function reel_rope()
+	if not swinger.retracted then
+		swinger.retracted =
+		 swing_reel(10, 1, swinger)
+		swinger.targetrad = 2
+		if btn(3) then
+			swinger.retracted = true
+			swinger.targetrad = 
+				swinger.radius
+		end
+	else
+		if btn(3) then
+			if swinger.targetrad 
+							< maxrad then
+				swinger.targetrad +=5
+			end
+			swing_reel(swinger.targetrad, 1,
+															swinger)
+		end
+	end				
+end
+
 function _update()
 
 	swing_kob(swinger)
@@ -149,25 +171,7 @@ function _update()
 			end	
 	end
 	
-	if not swinger.retracted then
-		swinger.retracted =
-		 swing_reel(10, 1, swinger)
-		swinger.targetrad = 2
-		if btn(3) then
-			swinger.retracted = true
-			swinger.targetrad = 
-				swinger.radius
-		end
-	else
-		if btn(3) then
-			if swinger.targetrad 
-							< maxrad then
-				swinger.targetrad +=5
-			end
-			swing_reel(swinger.targetrad, 1,
-															swinger)
-		end
-	end												
+	reel_rope()								
 	
 	if lastswitch and not btn(2) then
 		switchlock = false
