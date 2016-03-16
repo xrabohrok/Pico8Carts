@@ -6,6 +6,15 @@ switchlock = false
 lastswitch = false
 maxrad = 40
 debug = ""
+cam = {}
+	cam.x = 0
+	cam.y = 0
+cam_speed = 2
+cam_direction = 0
+cam_dir_speed = .1
+cam_buffer = 30
+screenwidth = 60
+diff_debug =""
 
 function init_kobold(x,y,ax,ay)
 	local kob = {}
@@ -92,6 +101,32 @@ function pump_swing(kob, inc_left, inc_right)
 	end
 end
 
+function adjust_cam()
+ --no upward movement
+ local there = (swinger.x + hanger.x)
+ 									/ 2
+ local diff = cam.x + 
+ 			screenwidth - there
+ 			
+ if diff > cam_buffer 
+ 		or diff < -cam_buffer
+ 	then
+ 		diff_debug = "cool"
+ 		if cam_direction <1 
+ 				or cam_direction >-1 then
+ 			if diff < 0 then
+ 				cam_direction += cam_dir_speed
+ 			else
+ 		 	cam_direction -= cam_dir_speed
+ 			end
+ 		end
+ else
+ 	cam_speed = 0
+ end
+ 
+ cam.x += cam_direction * cam_speed
+end
+
 function swing_reel(target
 															, speed ,kob)
 	if(kob.radius < target - speed/2 or
@@ -171,7 +206,8 @@ function _update()
 			end	
 	end
 	
-	reel_rope()								
+	reel_rope()	
+	adjust_cam()							
 	
 	if lastswitch and not btn(2) then
 		switchlock = false
@@ -186,14 +222,22 @@ function _draw()
 						kobb.x+cent, kobb.y+cent, 4) 
 	spr(0, swinger.x, swinger.y)
 	spr(1, hanger.x, hanger.y)
-	print(debug, 5,5)
+	print(diff_debug, 5,5)
+	
+	x = 0
+	while x < 120 do
+		x += 5
+		line(x,120,x, 125)
+	end
+	
+	camera(cam.x, cam.y)
 	
 end
 __gfx__
 00900000000090000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 900990000d0999000000000000000000000000000049a00000000000000000000000000000000000000000000000000000000000000000000000000000000000
 099989d00998900d00000000000000000000000000449a0000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001999d09dd9ddd00000000000000000000000000444440000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000999d09dd9ddd00000000000000000000000000444440000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0dd11dd0009110000000000000000000000000000444540000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0d011144441110000000000000000000000000000445440000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0d040004400044000000000000000000000000000044400000000000000000000000000000000000000000000000000000000000000000000000000000000000
