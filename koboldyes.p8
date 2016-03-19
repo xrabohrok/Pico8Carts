@@ -103,10 +103,12 @@ end
 
 function adjust_cam()
  --no upward movement
- local there = (swinger.x + hanger.x)
+ local there = 
+ 		(swinger.x + hanger.x)
  									/ 2
  local diff = cam.x + 
  			screenwidth - there
+ diff_debug = "uncool"
  			
  if diff > cam_buffer 
  		or diff < -cam_buffer
@@ -114,14 +116,18 @@ function adjust_cam()
  		diff_debug = "cool"
  		if cam_direction <1 
  				or cam_direction >-1 then
+ 			diff_debug = "sliding"
  			if diff < 0 then
  				cam_direction += cam_dir_speed
+ 				diff_debug = "sliding right"
  			else
  		 	cam_direction -= cam_dir_speed
+ 				diff_debug = "sliding left"
  			end
+ 			
  		end
  else
- 	cam_speed = 0
+ 	cam_direction = 0
  end
  
  cam.x += cam_direction * cam_speed
