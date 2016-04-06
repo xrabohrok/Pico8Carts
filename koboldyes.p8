@@ -13,7 +13,9 @@ cam_speed = 2
 cam_direction = 0
 cam_dir_speed = .1
 cam_buffer = 30
-screenwidth = 60
+cam_sensitivty = .2
+cam_cntr_disp = -30
+screenwidth = 80
 diff_debug =""
 
 function init_kobold(x,y,ax,ay)
@@ -107,27 +109,39 @@ function adjust_cam()
  		(swinger.x + hanger.x)
  									/ 2
  local diff = cam.x + 
- 			screenwidth - there
- diff_debug = "uncool"
+ 			screenwidth + cam_cntr_disp
+ 			  - there
  			
  if diff > cam_buffer 
  		or diff < -cam_buffer
  	then
- 		diff_debug = "cool"
  		if cam_direction <1 
  				or cam_direction >-1 then
- 			diff_debug = "sliding"
- 			if diff < 0 then
+ 			if diff < -cam_sensitivty then
  				cam_direction += cam_dir_speed
- 				diff_debug = "sliding right"
- 			else
+ 			end
+ 			if diff > cam_sensitivty then
  		 	cam_direction -= cam_dir_speed
- 				diff_debug = "sliding left"
+ 			end
+ 			if diff >= -cam_sensitivty 
+ 					and diff <= cam_sensitivty then
+ 						cam_direction = 0
  			end
  			
  		end
  else
- 	cam_direction = 0
+ 	if cam_direction >-.5 and
+ 				cam_direction < .5 then
+ 					if cam_direction >= cam_sensitivty then
+ 						cam_direction -= cam_dir_speed * 2
+ 					end
+ 					if cam_direction <= -cam_sensitivty then
+ 						cam_direction += cam_dir_speed * 2
+ 					end
+ 	else
+ 			cam_direction = 0
+ 	end	
+ 	diff_debug = cam_direction
  end
  
  cam.x += cam_direction * cam_speed
