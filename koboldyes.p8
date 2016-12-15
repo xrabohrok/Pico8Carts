@@ -22,28 +22,29 @@ function init_kobold(x,y,ax,ay)
 	local kob = {}
 	kob.x = x
 	kob.y = y
-	kob.anglemin = .6 
+	kob.anglemin = .6
 	kob.anglemax = .9
-	kob.swingperiod = 60
-	kob.swingbit = 0
-	kob.radius = 40
-	kob.targetrad = 40
-	kob.anchorx = ax
+	kob.swingperiod = 60 --how many swingbits there are in a swing
+	kob.swingbit = 0 -- timer to a swing cycle
+	kob.radius = 40 --current radius
+	kob.targetrad = 40 --radius selected by user
+	kob.anchorx = ax --center of rotation
 	kob.anchory = ay
-	kob.angle = 0
-	kob.anglemin_norm = .6
-	kob.anglemax_norm = .9
+	kob.angle = 0 --current angle
+	kob.anglemin_norm = .6 --normal angle max
+	kob.anglemax_norm = .9 --overcharge swing max
 	kob.leftward = false
-	kob.swinglock = false
+	kob.swinglock = false --action lock
 	kob.retracted = false
 	return kob
 end
 
+--swinging motion
 function swing_kob(kob)
 	kob.swingbit += 1
-	local swingpart = 
-			cos( kob.swingbit/ 
-								kob.swingperiod  
+	local swingpart =
+			cos( kob.swingbit/
+								kob.swingperiod
 								)
 
 	local swing_per = (swingpart + 1)
@@ -55,9 +56,9 @@ function swing_kob(kob)
 			cos( kob.angle) + kob.anchorx
 	kob.y = kob.radius *
 			sin( kob.angle) + kob.anchory
-	 
+
 	kob.leftward = kob.swingbit < (kob.swingperiod/2)
-	
+
 	--swing can be overcharged, this resets
 	if kob.swingbit	< kob.swingperiod * .1 or
 				kob.swingbit > kob.swingperiod * .9
@@ -65,9 +66,9 @@ function swing_kob(kob)
 				kob.anglemin = kob.anglemin_norm
 				kob.swinglock = false
 	end
-	if kob.swingbit	> (kob.swingperiod/2) 
+	if kob.swingbit	> (kob.swingperiod/2)
 					- kob.swingperiod * .05 and
-				kob.swingbit	< (kob.swingperiod/2) 
+				kob.swingbit	< (kob.swingperiod/2)
 					+ kob.swingperiod * .05
 				then
 				kob.anglemax = kob.anglemax_norm
@@ -82,12 +83,13 @@ function _init()
 	koba = init_kobold(45,40,0,0)
 	kobb = init_kobold(15,10
 			,koba.x
-			,koba.y)	
-			
+			,koba.y)
+
 	swinger = kobb
 	hanger = koba
 end
 
+-- overcharge the rope swing
 function pump_swing(kob, inc_left, inc_right)
 	if not kob.swinglock then
 		if btn(1) and not kob.leftward
@@ -95,7 +97,7 @@ function pump_swing(kob, inc_left, inc_right)
 			kob.swinglock = true
 			kob.anglemax = inc_right
 		end
-		if btn(0) and kob.leftward 
+		if btn(0) and kob.leftward
 			and kob.angle > .75 then --left
 			kob.swinglock = true
 			kob.anglemin = inc_left
@@ -103,19 +105,20 @@ function pump_swing(kob, inc_left, inc_right)
 	end
 end
 
+--move camera along with action
 function adjust_cam()
  --no upward movement
- local there = 
+ local there =
  		(swinger.x + hanger.x)
  									/ 2
- local diff = cam.x + 
+ local diff = cam.x +
  			screenwidth + cam_cntr_disp
  			  - there
- 			
- if diff > cam_buffer 
+
+ if diff > cam_buffer
  		or diff < -cam_buffer
  	then
- 		if cam_direction <1 
+ 		if cam_direction <1
  				or cam_direction >-1 then
  			if diff < -cam_sensitivty then
  				cam_direction += cam_dir_speed
@@ -123,11 +126,11 @@ function adjust_cam()
  			if diff > cam_sensitivty then
  		 	cam_direction -= cam_dir_speed
  			end
- 			if diff >= -cam_sensitivty 
+ 			if diff >= -cam_sensitivty
  					and diff <= cam_sensitivty then
  						cam_direction = 0
  			end
- 			
+
  		end
  else
  	if cam_direction >-.5 and
@@ -140,18 +143,19 @@ function adjust_cam()
  					end
  	else
  			cam_direction = 0
- 	end	
+ 	end
  	diff_debug = cam_direction
  end
- 
+
  cam.x += cam_direction * cam_speed
 end
 
+--move kobold to selected radius
 function swing_reel(target
 															, speed ,kob)
 	if(kob.radius < target - speed/2 or
 					kob.radius > target + speed/2)
-	then 
+	then
 		if kob.radius < target then
 			kob.radius += speed
 		end
@@ -161,11 +165,12 @@ function swing_reel(target
 	else
 		return true
 	end
-	
+
 	return false
-	
+
 end
 
+-- handles control of rope reeling
 function reel_rope()
 	if not swinger.retracted then
 		swinger.retracted =
@@ -173,31 +178,31 @@ function reel_rope()
 		swinger.targetrad = 2
 		if btn(3) then
 			swinger.retracted = true
-			swinger.targetrad = 
+			swinger.targetrad =
 				swinger.radius
 		end
 	else
 		if btn(3) then
-			if swinger.targetrad 
+			if swinger.targetrad
 							< maxrad then
 				swinger.targetrad +=5
 			end
 			swing_reel(swinger.targetrad, 1,
 															swinger)
 		end
-	end				
+	end
 end
 
 function _update()
 
 	swing_kob(swinger)
 	pump_swing(swinger,.4 , 1.1)
-	
+
 	if not switchlock and btn(2)
 	 then
 	 	--transfer rope length
 	 	hanger.radius = swinger.radius
-	 
+
 			switchlock = true
 			local temp = swinger
 			swinger = hanger
@@ -205,30 +210,30 @@ function _update()
 			swinger.anchorx = hanger.x
 			swinger.anchory = hanger.y
 			local ang = hanger.angle + .5
-			
+
 			swinger.retracted = false
-			
+
 			if swinger.x > hanger.x
 				then
 				swinger.swingbit = 0
 				swinger.anglemax = ang
-				if swinger.anglemax < swinger.anglemin 
+				if swinger.anglemax < swinger.anglemin
 					then
-					swinger.anglemax += 1 
+					swinger.anglemax += 1
 				end
 			else
 				swinger.swingbit = 30
 				swinger.anglemin = ang
-				if swinger.anglemax < swinger.anglemin 
+				if swinger.anglemax < swinger.anglemin
 					then
-					swinger.anglemin -= 1 
+					swinger.anglemin -= 1
 				end
-			end	
+			end
 	end
-	
-	reel_rope()	
-	adjust_cam()							
-	
+
+	reel_rope()
+	adjust_cam()
+
 	if lastswitch and not btn(2) then
 		switchlock = false
 	end
@@ -239,19 +244,19 @@ function _draw()
 	cls()
 	palt (0, true)
 	line(koba.x+cent, koba.y+cent,
-						kobb.x+cent, kobb.y+cent, 4) 
+						kobb.x+cent, kobb.y+cent, 4)
 	spr(0, swinger.x, swinger.y)
 	spr(1, hanger.x, hanger.y)
 	print(diff_debug, 5,5)
-	
+
 	x = 0
 	while x < 120 do
 		x += 5
 		line(x,120,x, 125)
 	end
-	
+
 	camera(cam.x, cam.y)
-	
+
 end
 __gfx__
 00900000000090000900009007000070000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -548,4 +553,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-
