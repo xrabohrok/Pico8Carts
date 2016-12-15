@@ -17,6 +17,8 @@ cam_sensitivty = .2
 cam_cntr_disp = -30
 screenwidth = 80
 diff_debug =""
+item_bob_cycle = 0
+item_bob_period = 60
 
 treasures = 0
 
@@ -276,8 +278,8 @@ function _update()
 	lastswitch = btn(up_btn)
 end
 
-function draw_iter(thing)
-	spr(thing.spr_index, thing.x, thing.y)
+function item_draw_iter(thing)
+	spr(thing.spr_index, thing.x, thing.y + 4 * sin(item_bob_cycle/item_bob_period))
 end
 
 function _draw()
@@ -294,7 +296,9 @@ function _draw()
 		x += 5
 		line(x,120,x, 125)
 	end
-	foreach(items, draw_iter)
+
+	item_bob_cycle = (item_bob_cycle + 1) % item_bob_period
+	foreach(items, item_draw_iter)
 
 	camera(cam.x, cam.y)
 
