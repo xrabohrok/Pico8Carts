@@ -200,15 +200,11 @@ function reel_rope()
 	end
 end
 
-function _update()
-
-	swing_kob(swinger)
-	pump_swing(swinger,.4 , 1.1)
-
+function switch_swingers()
 	if not switchlock and btn(UP_BTN)
 	 then
-	 	--transfer rope length
-	 	hanger.radius = swinger.radius
+		--transfer rope length
+		hanger.radius = swinger.radius
 
 			switchlock = true
 			local temp = swinger
@@ -237,7 +233,13 @@ function _update()
 				end
 			end
 	end
+end
 
+function _update()
+
+	swing_kob(swinger)
+	pump_swing(swinger,.4 , 1.1)
+	switch_swingers()
 	reel_rope()
 	adjust_cam()
 
