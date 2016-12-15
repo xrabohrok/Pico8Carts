@@ -18,6 +18,13 @@ cam_cntr_disp = -30
 screenwidth = 80
 diff_debug =""
 
+LEFT_BTN = 0
+RIGHT_BTN = 1
+UP_BTN = 2
+DOWN_BTN = 3
+A_BTN = 4
+B_BTN = 5
+
 function init_kobold(x,y,ax,ay)
 	local kob = {}
 	kob.x = x
@@ -92,12 +99,12 @@ end
 -- overcharge the rope swing
 function pump_swing(kob, inc_left, inc_right)
 	if not kob.swinglock then
-		if btn(1) and not kob.leftward
+		if btn(RIGHT_BTN) and not kob.leftward
 			and kob.angle < .75 then --right
 			kob.swinglock = true
 			kob.anglemax = inc_right
 		end
-		if btn(0) and kob.leftward
+		if btn(LEFT_BTN) and kob.leftward
 			and kob.angle > .75 then --left
 			kob.swinglock = true
 			kob.anglemin = inc_left
@@ -176,13 +183,13 @@ function reel_rope()
 		swinger.retracted =
 		 swing_reel(10, 1, swinger)
 		swinger.targetrad = 2
-		if btn(3) then
+		if btn(DOWN_BTN) then
 			swinger.retracted = true
 			swinger.targetrad =
 				swinger.radius
 		end
 	else
-		if btn(3) then
+		if btn(DOWN_BTN) then
 			if swinger.targetrad
 							< maxrad then
 				swinger.targetrad +=5
@@ -198,7 +205,7 @@ function _update()
 	swing_kob(swinger)
 	pump_swing(swinger,.4 , 1.1)
 
-	if not switchlock and btn(2)
+	if not switchlock and btn(UP_BTN)
 	 then
 	 	--transfer rope length
 	 	hanger.radius = swinger.radius
@@ -234,10 +241,10 @@ function _update()
 	reel_rope()
 	adjust_cam()
 
-	if lastswitch and not btn(2) then
+	if lastswitch and not btn(UP_BTN) then
 		switchlock = false
 	end
-	lastswitch = btn(2)
+	lastswitch = btn(UP_BTN)
 end
 
 function _draw()
