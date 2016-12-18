@@ -18,6 +18,7 @@ screenwidth = 80
 item_bob_cycle = 0
 item_bob_period = 60
 
+hurt = false
 flinch = 0
 flinch_period = 10
 
@@ -84,7 +85,6 @@ function init_kobold(x,y,ax,ay)
 	kob.leftward = false
 	kob.swinglock = false --action lock
 	kob.retracted = false
-	kob.hurt = false
 	return kob
 end
 
@@ -101,10 +101,8 @@ function item_collision_check(item)
 				del(items, item)
 			elseif check_for_flag(item.spr_index, 128) then
 				--obstacle
-				swinger.hurt = true
+				hurt = true
 			end
-
-
 		end
 end
 
@@ -349,15 +347,15 @@ function _draw()
 
 	--temp = dist(swinger.x,swinger.y,hanger.x,hanger.y)
 	--print("dist"..temp, 5 ,9)
+
 	--temp code, this really needs to change
-	if swinger.hurt and flinch < flinch_period then
+	if hurt and flinch < flinch_period then
 		flinch += 1
 		print("ouch!!", 60 + cam.x, 60 + cam.y, red_col)
 	elseif flinch >= flinch_period then
 		flinch = 0
-		swinger.hurt = false
+	 	hurt = false
 	end
-	--print("ouch!!", 40 + cam.x, 40 + cam.y, red_col)
 	print("bling:" .. treasures, 7 + cam.x,5, orange_col)
 end
 __gfx__
