@@ -1,11 +1,10 @@
 pico-8 cartridge // http://www.pico-8.com
-version 5
+version 8
 __lua__
 cent = 3
 switchlock = false
 lastswitch = false
 maxrad = 40
-debug = ""
 cam = {}
 	cam.x = 0
 	cam.y = 0
@@ -16,12 +15,14 @@ cam_buffer = 30
 cam_sensitivty = .2
 cam_cntr_disp = -30
 screenwidth = 80
-diff_debug =""
 item_bob_cycle = 0
 item_bob_period = 60
 
+global_rad = 4
+
 treasures = 0
 
+--pico 8 constants
 left_btn = 0
 right_btn = 1
 up_btn = 2
@@ -29,7 +30,15 @@ down_btn = 3
 a_btn = 4
 b_btn = 5
 
+orange_col = 9
+brown_col = 4
+
 items = {}
+
+--returns true if the sprite has a flag
+function check_for_flag(sprite_ind, flag)
+	return band(fget(sprite_ind), flag) == flag
+end
 
 function init_map()
 	local xi = 0
@@ -38,7 +47,7 @@ function init_map()
 		while yi < screenwidth / 8 do
 			local temp = mget (xi,yi)
 			--flag 2 is a collectable
-			if fget(temp) == 2 then
+			if check_for_flag(temp, 2) then
 				item = {}
 				item.x = 8 * xi
 				item.y = 8 * yi
@@ -72,6 +81,27 @@ function init_kobold(x,y,ax,ay)
 	kob.swinglock = false --action lock
 	kob.retracted = false
 	return kob
+end
+
+--process all items in items collection
+function collision_iteration()
+	foreach (items, item_collision_check)
+end
+
+function item_collision_check(item)
+		if global_rad >= dist(swinger.x,swinger.y,item.x,item.y) then
+			if check_for_flag(item.spr_index, 4) then
+				--generic treasure
+				treasures += 1
+			end
+			del(items, item)
+		end
+end
+
+function dist(x1, y1, x2, y2)
+	local block_dist = (x2 - x1) * (x2 - x1) +
+	    (y2 - y1) * (y2 - y1)
+	return sqrt(block_dist)
 end
 
 --swinging motion
@@ -180,7 +210,6 @@ function adjust_cam()
  	else
  			cam_direction = 0
  	end
- 	diff_debug = cam_direction
  end
 
  cam.x += cam_direction * cam_speed
@@ -270,6 +299,7 @@ function _update()
 	pump_swing(swinger,.4 , 1.1)
 	switch_swingers()
 	reel_rope()
+	collision_iteration()
 	adjust_cam()
 
 	if lastswitch and not btn(up_btn) then
@@ -286,7 +316,7 @@ function _draw()
 	cls()
 	palt (0, true)
 	line(koba.x+cent, koba.y+cent,
-						kobb.x+cent, kobb.y+cent, 4)
+						kobb.x+cent, kobb.y+cent, brown_col)
 	spr(0, swinger.x, swinger.y)
 	spr(1, hanger.x, hanger.y)
 
@@ -302,8 +332,9 @@ function _draw()
 
 	camera(cam.x, cam.y)
 
-	print(diff_debug, 5 ,5)
-	print("treasures:" .. treasures, 7,5)
+	--temp = dist(swinger.x,swinger.y,hanger.x,hanger.y)
+	--print("dist"..temp, 5 ,9)
+	print("bling:" .. treasures, 7 + cam.x,5, orange_col)
 end
 __gfx__
 00900000000090000900009007000070000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -434,8 +465,9 @@ __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
 __gff__
-0000000000020000000000000000000000000000000200000000000000000000000000000002000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000000000060000000000000000000000000000000600000000000000000000000000000006000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 0000000000000025000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
