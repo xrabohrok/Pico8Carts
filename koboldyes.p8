@@ -18,13 +18,14 @@ screenwidth = 80
 item_bob_cycle = 0
 item_bob_period = 60
 
-hurt = false
-flinch = 0
-flinch_period = 10
-
 global_rad = 4
 
 treasures = 0
+health = 3
+invc_tmr_period = 30
+invc_tmr = 0
+dead = false
+hurt = false
 
 --pico 8 constants
 left_btn = 0
@@ -37,6 +38,7 @@ b_btn = 5
 orange_col = 9
 brown_col = 4
 red_col = 8
+pink_col = 14
 
 items = {}
 
@@ -64,7 +66,6 @@ function init_map()
 		yi = 0
 		xi += 1
 	end
-	treasures = 0
 end
 
 function init_kobold(x,y,ax,ay)
@@ -106,6 +107,7 @@ function item_collision_check(item)
 		end
 end
 
+--overflows and gives garbage for distances above two screenwidths or so
 function dist(x1, y1, x2, y2)
 	local block_dist = (x2 - x1) * (x2 - x1) +
 	    (y2 - y1) * (y2 - y1)
@@ -153,6 +155,11 @@ function swing_kob(kob)
 end
 
 function _init()
+	invc_tmr = 0
+	health = 3
+	treasure = 0
+	dead = false
+
 	koba = init_kobold(45,40,0,0)
 	kobb = init_kobold(15,10
 			,koba.x
@@ -301,6 +308,23 @@ function switch_swingers()
 	end
 end
 
+function handle_damage()
+	if hurt then
+		hurt = false
+		if invc_tmr == 0 then
+			health -= 1
+		end
+		if health <= 0 then
+			dead = true
+		elseif invc_tmr == 0 then
+			invc_tmr = invc_tmr_period
+		end
+	end
+	if invc_tmr > 0 then
+		invc_tmr -= 1
+	end
+end
+
 function _update()
 
 	swing_kob(swinger)
@@ -308,6 +332,7 @@ function _update()
 	switch_swingers()
 	reel_rope()
 	collision_iteration()
+	handle_damage()
 	adjust_cam()
 
 	if lastswitch and not btn(up_btn) then
@@ -330,7 +355,11 @@ function _draw()
 	palt (0, true)
 	line(koba.x+cent, koba.y+cent,
 						kobb.x+cent, kobb.y+cent, brown_col)
-	spr(0, swinger.x, swinger.y)
+	if invc_tmr > 0 then
+		spr(2, swinger.x, swinger.y)
+	else
+		spr(0, swinger.x, swinger.y)
+	end
 	spr(1, hanger.x, hanger.y)
 
 
@@ -346,17 +375,17 @@ function _draw()
 	camera(cam.x, cam.y)
 
 	--temp = dist(swinger.x,swinger.y,hanger.x,hanger.y)
-	--print("dist"..temp, 5 ,9)
-
-	--temp code, this really needs to change
-	if hurt and flinch < flinch_period then
-		flinch += 1
-		print("ouch!!", 60 + cam.x, 60 + cam.y, red_col)
-	elseif flinch >= flinch_period then
-		flinch = 0
-	 	hurt = false
+	debug = ""
+	if hurt then
+		debug = "yes"
+	else
+		debug = "no"
 	end
+	print("hurt"..debug, 5 ,15)
+
+
 	print("bling:" .. treasures, 7 + cam.x,5, orange_col)
+	print("health:" .. health, 45 + cam.x, 5, pink_col)
 end
 __gfx__
 00900000000090000900009007000070000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000
