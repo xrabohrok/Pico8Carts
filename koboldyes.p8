@@ -8,12 +8,12 @@ maxrad = 40
 cam = {}
 	cam.x = 0
 	cam.y = 0
+cam_goal = 0
 cam_speed = 2
-cam_direction = 0
-cam_dir_speed = .1
-cam_buffer = 30
-cam_sensitivty = .2
-cam_cntr_disp = -30
+cam_buffer = 40
+
+debug_buff = ""
+
 screenwidth = 128
 item_bob_cycle = 0
 item_bob_period = 60
@@ -177,6 +177,7 @@ function _init()
 	health = 4
 	treasure = 0
 	dead = false
+	cam_goal = 0
 
 	koba = init_kobold(45,40,0,0)
 	kobb = init_kobold(15,10
@@ -207,45 +208,22 @@ end
 --move camera along with action
 function adjust_cam()
  --no upward movement
+ -- lets rewrite this to only go right
  local there =
- 		(swinger.x + hanger.x)
- 									/ 2
- local diff = cam.x +
- 			screenwidth + cam_cntr_disp
- 			  - there
+ 		((swinger.x - hanger.x)	/ 2)
+									+ swinger.x
+ local cam_thresh =
+ 		cam.x + screenwidth / 2 + cam_buffer
 
- if diff > cam_buffer
- 		or diff < -cam_buffer
- 	then
- 		if cam_direction <1
- 				or cam_direction >-1 then
- 			if diff < -cam_sensitivty then
- 				cam_direction += cam_dir_speed
- 			end
- 			if diff > cam_sensitivty then
- 		 	cam_direction -= cam_dir_speed
- 			end
- 			if diff >= -cam_sensitivty
- 					and diff <= cam_sensitivty then
- 						cam_direction = 0
- 			end
+	if there > cam_thresh
+	 	and cam_goal <= 0 then
+	 	cam_goal = 32
+	end
 
- 		end
- else
- 	if cam_direction >-.5 and
- 				cam_direction < .5 then
- 					if cam_direction >= cam_sensitivty then
- 						cam_direction -= cam_dir_speed * 2
- 					end
- 					if cam_direction <= -cam_sensitivty then
- 						cam_direction += cam_dir_speed * 2
- 					end
- 	else
- 			cam_direction = 0
- 	end
- end
-
- cam.x += cam_direction * cam_speed
+	if cam_goal > 0 then
+		cam_goal -= cam_speed
+		cam.x += cam_speed
+	end
 end
 
 --move kobold to selected radius
@@ -416,10 +394,12 @@ function _draw()
 	camera(cam.x, cam.y)
 
 	--temp = dist(swinger.x,swinger.y,hanger.x,hanger.y)
-	print("debug "..swinger.x .. ",".. swinger.y, 5 ,15)
+	--print("debug "..swinger.x .. ",".. swinger.y, 5 + cam.x ,15)
+	--print("debug "..cam.x .. ",".. cam.y, 5 + cam.x ,20)
+	--print("debug "..debug_buff, 5 + cam.x ,25)
 
 	if dead then
-		sspr(104,16,16,16, 40,40, 40,go_curr_y)
+		sspr(104,16, 16,16, 40 + cam.x,40, 40,go_curr_y)
 		if go_curr_y < go_final_y then
 			go_curr_y += 2
 		end
