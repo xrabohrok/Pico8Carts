@@ -21,7 +21,8 @@ item_bob_period = 60
 global_rad = 4
 
 treasures = 0
-health = 3
+health = 4
+max_health = 6
 invc_tmr_period = 30
 invc_tmr = 0
 dead = false
@@ -109,8 +110,10 @@ function item_collision_check(item)
 				hurt = true
 			elseif check_for_flag(item.spr_index, 64) then
 				--healthup
-				health += 1
-				del(items, item)
+				if(health < max_health) then
+					health += 1
+					del(items, item)
+				end
 			end
 		end
 end
@@ -164,7 +167,7 @@ end
 
 function _init()
 	invc_tmr = 0
-	health = 3
+	health = 4
 	treasure = 0
 	dead = false
 
