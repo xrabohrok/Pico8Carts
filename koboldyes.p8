@@ -344,8 +344,8 @@ function _update()
 		switch_swingers()
 		reel_rope()
 		collision_iteration()
+		handle_damage()
 	end
-	handle_damage()
 	adjust_cam()
 
 	if lastswitch and not btn(up_btn) then
@@ -363,19 +363,7 @@ function item_draw_iter(thing)
 	end
 end
 
-function _draw()
-	cls()
-	palt (0, true)
-
-	x = 0
-	while x < 120 do
-		x += 5
-		line(x,120,x, 125)
-	end
-
-	item_bob_cycle = (item_bob_cycle + 1) % item_bob_period
-	foreach(items, item_draw_iter)
-
+function draw_kobolds()
 	line(koba.x+cent, koba.y+cent,
 						kobb.x+cent, kobb.y+cent, brown_col)
 	if invc_tmr > 0 then
@@ -393,6 +381,22 @@ function _draw()
 		spr(0, swinger.x, swinger.y)
 	end
 	spr(1, hanger.x, hanger.y)
+end
+
+function _draw()
+	cls()
+	palt (0, true)
+
+	x = 0
+	while x < 120 do
+		x += 5
+		line(x,120,x, 125)
+	end
+
+	item_bob_cycle = (item_bob_cycle + 1) % item_bob_period
+	foreach(items, item_draw_iter)
+
+	draw_kobolds()
 
 	camera(cam.x, cam.y)
 
