@@ -341,6 +341,13 @@ function handle_damage()
 	if invc_tmr > 0 then
 		invc_tmr -= 1
 	end
+
+	--lava is lethal
+	if swinger.y > 112 then
+		health = 0
+		dead = true
+	end
+
 end
 
 function _update()
@@ -409,7 +416,8 @@ function _draw()
 	camera(cam.x, cam.y)
 
 	--temp = dist(swinger.x,swinger.y,hanger.x,hanger.y)
-	--print("hurt"..debug, 5 ,15)
+	print("debug "..swinger.x .. ",".. swinger.y, 5 ,15)
+
 	if dead then
 		sspr(104,16,16,16, 40,40, 40,go_curr_y)
 		if go_curr_y < go_final_y then
@@ -716,4 +724,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-
