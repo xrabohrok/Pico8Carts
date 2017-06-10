@@ -385,6 +385,15 @@ function draw_kobolds()
 	spr(1, hanger.x, hanger.y)
 end
 
+function draw_game_over()
+	if dead then
+		sspr(104,16, 16,16, 40 + cam.x,40, 40,go_curr_y)
+		if go_curr_y < go_final_y then
+			go_curr_y += 2
+		end
+	end
+end
+
 function _draw()
 	cls()
 	palt (0, true)
@@ -403,12 +412,8 @@ function _draw()
 	--print("debug "..cam.x .. ",".. cam.y, 5 + cam.x ,20)
 	--print("debug "..debug_buff, 5 + cam.x ,25)
 
-	if dead then
-		sspr(104,16, 16,16, 40 + cam.x,40, 40,go_curr_y)
-		if go_curr_y < go_final_y then
-			go_curr_y += 2
-		end
-	end
+	draw_game_over()
+
 
 	print("bling:" .. treasures, 7 + cam.x,5, orange_col)
 	print("health:" .. health, 45 + cam.x, 5, pink_col)
