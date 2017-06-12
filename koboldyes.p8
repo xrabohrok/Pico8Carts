@@ -55,6 +55,11 @@ function check_for_flag(sprite_ind, flag)
 	return band(fget(sprite_ind), flag) == flag
 end
 
+-- map flags
+-- 1 : obstacles and statics
+-- 2 : item (other flags define what)
+-- 8 : Player starts (first will be hanger)
+
 function init_map()
 	local xi = 0
 	local yi = 0
@@ -209,6 +214,10 @@ function pump_swing(kob, inc_left, inc_right)
 	end
 end
 
+function reverse_swing(kob)
+	kob.swingbit = kob.swingperiod - kob.swingbit
+end
+
 --move camera along with action
 function adjust_cam()
  --no upward movement
@@ -308,11 +317,12 @@ function switch_swingers()
 	end
 end
 
-function handle_damage()
+function handle_damage(kob)
 	if hurt then
 		hurt = false
 		if invc_tmr == 0 and health >= 1 then
 			health -= 1
+			reverse_swing(kob)
 		end
 		if health <= 0 then
 			dead = true
@@ -335,12 +345,12 @@ end
 function _update()
 
 	if not dead then
+		handle_damage(swinger)
 		swing_kob(swinger)
 		pump_swing(swinger,.4 , 1.1)
 		switch_swingers()
 		reel_rope()
 		collision_iteration()
-		handle_damage()
 	end
 	adjust_cam()
 
