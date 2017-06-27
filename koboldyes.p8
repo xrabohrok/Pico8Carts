@@ -20,11 +20,12 @@ item_bob_period = 60
 
 map_strip_startx = 2
 map_strip_width = 3
+buffer_size_tiles = 19
 
 global_rad = 4
 
 treasures = 0
-health = 4
+health = 40
 max_health = 6
 invc_tmr_period = 30
 invc_tmr = 0
@@ -66,7 +67,7 @@ end
 function init_map()
 	local xi = 0
 	local yi = 0
-	while xi < screenwidth / 8 do
+	while xi < buffer_size_tiles do
 		while yi < screenwidth / 8 do
 			process_tile(xi, yi, static, item)
 			yi += 1
@@ -97,6 +98,24 @@ function process_tile(xi, yi, static, item)
 		else
 			swinger = init_kobold(8 * xi, 8 * yi, hanger.x, hanger.y)
 		end
+	end
+end
+
+function map_shift()
+	if cam.x >= 24 then
+		foreach(statics, shift_statics)
+		foreach(items, shift_statics)
+		hanger.x -= 24
+		swinger.x -= 24
+		cam.x = 0
+	end
+end
+
+function shift_statics(static)
+	if static.x < -16 then
+		del(statics, static)
+	else
+		static.x -= 24
 	end
 end
 
@@ -194,7 +213,7 @@ end
 
 function _init()
 	invc_tmr = 0
-	health = 4
+	health = 40
 	treasure = 0
 	dead = false
 	cam_goal = 0
@@ -358,6 +377,7 @@ function _update()
 		switch_swingers()
 		reel_rope()
 		collision_iteration()
+		map_shift()
 	end
 	adjust_cam()
 
@@ -731,4 +751,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-
