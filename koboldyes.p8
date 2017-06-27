@@ -18,6 +18,9 @@ screenwidth = 128
 item_bob_cycle = 0
 item_bob_period = 60
 
+map_strip_startx = 2
+map_strip_width = 3
+
 global_rad = 4
 
 treasures = 0
@@ -65,31 +68,35 @@ function init_map()
 	local yi = 0
 	while xi < screenwidth / 8 do
 		while yi < screenwidth / 8 do
-			local temp = mget (xi,yi)
-			--flag 2 is a collectable
-			if check_for_flag(temp, 2) then
-				item = {}
-				item.x = 8 * xi
-				item.y = 8 * yi
-				item.spr_index = temp
-				add(items, item)
-			elseif check_for_flag(temp,1) then
-				static = {}
-				static.x = 8 * xi
-				static.y = 8 * yi
-				static.spr_index = temp
-				add(statics, static)
-			elseif check_for_flag(temp, 8) then
-				if hanger == nil then
-					hanger = init_kobold(8 * xi, 8 * yi,0,0)
-				else
-					swinger = init_kobold(8 * xi, 8 * yi, hanger.x, hanger.y)
-				end
-			end
+			process_tile(xi, yi, static, item)
 			yi += 1
 		end
 		yi = 0
 		xi += 1
+	end
+end
+
+function process_tile(xi, yi, static, item)
+	local temp = mget (xi,yi)
+	--flag 2 is a collectable
+	if check_for_flag(temp, 2) then
+		item = {}
+		item.x = 8 * xi
+		item.y = 8 * yi
+		item.spr_index = temp
+		add(items, item)
+	elseif check_for_flag(temp,1) then
+		static = {}
+		static.x = 8 * xi
+		static.y = 8 * yi
+		static.spr_index = temp
+		add(statics, static)
+	elseif check_for_flag(temp, 8) then
+		if hanger == nil then
+			hanger = init_kobold(8 * xi, 8 * yi,0,0)
+		else
+			swinger = init_kobold(8 * xi, 8 * yi, hanger.x, hanger.y)
+		end
 	end
 end
 
