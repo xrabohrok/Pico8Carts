@@ -9,7 +9,16 @@ cam = {}
 	cam.x = 0
 	cam.y = 0
 	cam.index = 0
-cam_curve = {1,1,2,3,2,1,1}
+	cam.shiftzone = 70
+	cam.shiftamount = 50
+	cam.swapsafe = false
+cam_curve = {cam.shiftamount/25,
+    				cam.shiftamount/25,
+						cam.shiftamount/25 * 2,
+						 cam.shiftamount/25 * 3,
+						  cam.shiftamount/25 *2,
+							cam.shiftamount/25,
+							cam.shiftamount/25}
 
 debug_buff = ""
 
@@ -101,11 +110,13 @@ function process_tile(xi, yi, static, item)
 end
 
 function map_shift()
-	if cam.x >= 24 then
+	if cam.swapsafe then
 		foreach(statics, shift_statics)
 		foreach(items, shift_statics)
-		hanger.x -= 24
-		swinger.x -= 24
+		hanger.x -= cam.shiftamount
+		swinger.x -= cam.shiftamount
+		swinger.anchorx -= cam.shiftamount
+		cam.swapsafe = false
 		cam.x = 0
 	end
 end
@@ -114,7 +125,7 @@ function shift_statics(static)
 	if static.x < -16 then
 		del(statics, static)
 	else
-		static.x -= 24
+		static.x -= cam.shiftamount
 	end
 end
 
@@ -246,9 +257,18 @@ end
 --move camera along with action
 function adjust_cam()
  --no upward movement
-	if(swinger.x > 25) then
-		
+	if(swinger.x > cam.shiftzone and cam.index == 0) then
+		cam.index = 1
 	end
+	if cam.index > 0 then
+		cam.x += cam_curve[cam.index]
+		cam.index += 1
+	end
+	if cam.index > #cam_curve then
+		cam.index = 0
+		cam.swapsafe = true
+	end
+
 end
 
 --move kobold to selected radius
@@ -363,9 +383,10 @@ function _update()
 		switch_swingers()
 		reel_rope()
 		collision_iteration()
+		adjust_cam()
 		map_shift()
 	end
-	adjust_cam()
+
 
 	if lastswitch and not btn(up_btn) then
 		switchlock = false
