@@ -8,9 +8,8 @@ maxrad = 40
 cam = {}
 	cam.x = 0
 	cam.y = 0
-cam_goal = 0
-cam_speed = 2
-cam_buffer = 40
+	cam.index = 0
+cam_curve = {1,1,2,3,2,1,1}
 
 debug_buff = ""
 
@@ -247,21 +246,8 @@ end
 --move camera along with action
 function adjust_cam()
  --no upward movement
- -- lets rewrite this to only go right
- local there =
- 		((swinger.x - hanger.x)	/ 2)
-									+ swinger.x
- local cam_thresh =
- 		cam.x + screenwidth / 2 + cam_buffer
-
-	if there > cam_thresh
-	 	and cam_goal <= 0 then
-	 	cam_goal = 32
-	end
-
-	if cam_goal > 0 then
-		cam_goal -= cam_speed
-		cam.x += cam_speed
+	if(swinger.x > 25) then
+		
 	end
 end
 
