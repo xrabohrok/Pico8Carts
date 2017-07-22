@@ -9,16 +9,13 @@ cam = {}
 	cam.x = 0
 	cam.y = 0
 	cam.index = 0
-	cam.shiftzone = 70
-	cam.shiftamount = 50
-	cam.swapsafe = false
-cam_curve = {cam.shiftamount/25,
-    				cam.shiftamount/25,
-						cam.shiftamount/25 * 2,
-						 cam.shiftamount/25 * 3,
-						  cam.shiftamount/25 *2,
-							cam.shiftamount/25,
-							cam.shiftamount/25}
+	cam.shiftzone = 50
+	cam.accel = .12
+	cam.speed = 0
+	cam.maxspeed = 1.7
+	cam.phase = 0 --0 at rest, 1 speeding up, 2 slowing down, ready to swap
+	cam.distance = 0
+
 
 debug_buff = ""
 
@@ -110,14 +107,15 @@ function process_tile(xi, yi, static, item)
 end
 
 function map_shift()
-	if cam.swapsafe then
+	if cam.phase == 3 then
 		foreach(statics, shift_statics)
 		foreach(items, shift_statics)
-		hanger.x -= cam.shiftamount
-		swinger.x -= cam.shiftamount
-		swinger.anchorx -= cam.shiftamount
-		cam.swapsafe = false
+		hanger.x -= cam.distance
+		swinger.x -= cam.distance
+		swinger.anchorx -= cam.distance
+		cam.phase = 0
 		cam.x = 0
+		cam.distance = 0
 	end
 end
 
@@ -125,7 +123,7 @@ function shift_statics(static)
 	if static.x < -16 then
 		del(statics, static)
 	else
-		static.x -= cam.shiftamount
+		static.x -= cam.distance
 	end
 end
 
@@ -257,16 +255,25 @@ end
 --move camera along with action
 function adjust_cam()
  --no upward movement
-	if(swinger.x > cam.shiftzone and cam.index == 0) then
-		cam.index = 1
+	if(swinger.x > cam.shiftzone and cam.phase == 0) then
+		cam.phase = 1
 	end
-	if cam.index > 0 then
-		cam.x += cam_curve[cam.index]
-		cam.index += 1
+
+	if cam.phase == 1 then
+		cam.speed += cam.accel
+		cam.x += cam.speed
+		cam.distance += cam.speed
+		if cam.speed > cam.maxspeed then
+			cam.phase = 2
+		end
 	end
-	if cam.index > #cam_curve then
-		cam.index = 0
-		cam.swapsafe = true
+	if cam.phase == 2 then
+		cam.speed -= cam.accel
+		cam.x += cam.speed
+		cam.distance += cam.speed
+		if cam.speed <= 0 then
+			cam.phase = 3
+		end
 	end
 
 end
@@ -383,8 +390,9 @@ function _update()
 		switch_swingers()
 		reel_rope()
 		collision_iteration()
-		adjust_cam()
+
 		map_shift()
+		adjust_cam()
 	end
 
 
@@ -454,7 +462,7 @@ function _draw()
 	--temp = dist(swinger.x,swinger.y,hanger.x,hanger.y)
 	--print("debug "..swinger.x .. ",".. swinger.y, 5 + cam.x ,15)
 	--print("debug "..cam.x .. ",".. cam.y, 5 + cam.x ,20)
-	--print("debug "..debug_buff, 5 + cam.x ,25)
+	--print("debug "..cam.speed, 5 + cam.x ,25)
 
 	draw_game_over()
 
