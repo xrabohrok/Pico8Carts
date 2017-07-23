@@ -13,7 +13,8 @@ cam = {}
 	cam.accel = .12
 	cam.speed = 0
 	cam.maxspeed = 1.7
-	cam.phase = 0 --0 at rest, 1 speeding up, 2 slowing down, ready to swap
+	cam.phase = 0 --0 at rest, 1 speeding up, 2 slowing down,3 ready to swap
+								--4 is swapping
 	cam.distance = 0
 
 
@@ -108,14 +109,18 @@ end
 
 function map_shift()
 	if cam.phase == 3 then
+		cam.phase = 4
+	elseif cam.phase == 4 then
 		foreach(statics, shift_statics)
 		foreach(items, shift_statics)
 		hanger.x -= cam.distance
 		swinger.x -= cam.distance
 		swinger.anchorx -= cam.distance
-		cam.phase = 0
-		cam.x = 0
+		cam.phase = 5
 		cam.distance = 0
+	elseif cam.phase == 5 then
+		cam.phase = 0
+		--cam.x = 0
 	end
 end
 
@@ -257,6 +262,7 @@ function adjust_cam()
  --no upward movement
 	if(swinger.x > cam.shiftzone and cam.phase == 0) then
 		cam.phase = 1
+		cam.speed = 0
 	end
 
 	if cam.phase == 1 then
@@ -266,8 +272,7 @@ function adjust_cam()
 		if cam.speed > cam.maxspeed then
 			cam.phase = 2
 		end
-	end
-	if cam.phase == 2 then
+	elseif cam.phase == 2 then
 		cam.speed -= cam.accel
 		cam.x += cam.speed
 		cam.distance += cam.speed
@@ -447,18 +452,20 @@ function draw_game_over()
 end
 
 function _draw()
-	cls()
-	palt (0, true)
+	--trying to avoid position flicker by skipping a few frames
+	--if(cam.phase < 3) then
+		cls()
+		palt (0, true)
 
-	foreach(statics, statics_draw_iter)
+		foreach(statics, statics_draw_iter)
 
-	item_bob_cycle = (item_bob_cycle + 1) % item_bob_period
-	foreach(items, item_draw_iter)
+		item_bob_cycle = (item_bob_cycle + 1) % item_bob_period
+		foreach(items, item_draw_iter)
 
-	draw_kobolds()
+		draw_kobolds()
 
-	camera(cam.x, cam.y)
-
+		camera(cam.x, cam.y)
+	--end
 	--temp = dist(swinger.x,swinger.y,hanger.x,hanger.y)
 	--print("debug "..swinger.x .. ",".. swinger.y, 5 + cam.x ,15)
 	--print("debug "..cam.x .. ",".. cam.y, 5 + cam.x ,20)
