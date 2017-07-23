@@ -111,6 +111,7 @@ function map_shift()
 	if cam.phase == 3 then
 		cam.phase = 4
 	elseif cam.phase == 4 then
+		cam.x = 0
 		foreach(statics, shift_statics)
 		foreach(items, shift_statics)
 		hanger.x -= cam.distance
@@ -120,7 +121,7 @@ function map_shift()
 		cam.distance = 0
 	elseif cam.phase == 5 then
 		cam.phase = 0
-		--cam.x = 0
+
 	end
 end
 
@@ -454,6 +455,7 @@ end
 function _draw()
 	--trying to avoid position flicker by skipping a few frames
 	--if(cam.phase < 3) then
+		camera(cam.x, cam.y)
 		cls()
 		palt (0, true)
 
@@ -464,7 +466,7 @@ function _draw()
 
 		draw_kobolds()
 
-		camera(cam.x, cam.y)
+
 	--end
 	--temp = dist(swinger.x,swinger.y,hanger.x,hanger.y)
 	--print("debug "..swinger.x .. ",".. swinger.y, 5 + cam.x ,15)
