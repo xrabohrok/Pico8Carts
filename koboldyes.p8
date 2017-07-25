@@ -119,6 +119,7 @@ function map_shift()
 		swinger.anchorx -= cam.distance
 		cam.phase = 5
 		cam.distance = 0
+		unload_stuff()
 	elseif cam.phase == 5 then
 		cam.phase = 0
 
@@ -126,11 +127,7 @@ function map_shift()
 end
 
 function shift_statics(static)
-	if static.x < -16 then
-		del(statics, static)
-	else
-		static.x -= cam.distance
-	end
+	static.x -= cam.distance
 end
 
 function init_kobold(x,y,ax,ay)
@@ -176,6 +173,23 @@ function item_collision_check(item)
 				end
 			end
 		end
+end
+
+function unload_stuff()
+	foreach (items, unload_item)
+	foreach (statics, unload_static)
+end
+
+function unload_item(thing)
+  if(thing.x < -8) then
+		del(items, thing)
+	end
+end
+
+function unload_static(static)
+  if(static.x < -8) then
+		del(statics, static)
+	end
 end
 
 --overflows and gives garbage for distances above two screenwidths or so
@@ -399,6 +413,8 @@ function _update()
 
 		map_shift()
 		adjust_cam()
+
+		unload_stuff()
 	end
 
 
@@ -470,7 +486,7 @@ function _draw()
 	--end
 	--temp = dist(swinger.x,swinger.y,hanger.x,hanger.y)
 	--print("debug "..swinger.x .. ",".. swinger.y, 5 + cam.x ,15)
-	--print("debug "..cam.x .. ",".. cam.y, 5 + cam.x ,20)
+	--print("debug "..#items .. ",".. #statics, 5 + cam.x ,20)
 	--print("debug "..cam.speed, 5 + cam.x ,25)
 
 	draw_game_over()
