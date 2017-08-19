@@ -24,8 +24,10 @@ screenwidth = 128
 item_bob_cycle = 0
 item_bob_period = 60
 
-map_strip_startx = 2
+map_strip_startx = 9
 map_strip_width = 3
+map_chunks = 18
+
 buffer_size_tiles = 19
 
 global_rad = 4
@@ -38,8 +40,6 @@ invc_tmr = 0
 dead = false
 hurt = false
 hurt_blink = false
-
-built_chunks = 0
 
 go_final_y = 40
 go_curr_y = -40
@@ -75,7 +75,7 @@ function init_map()
 	local yi = 0
 	while xi < buffer_size_tiles do
 		while yi < screenwidth / 8 do
-			process_tile(xi, yi, static, item)
+			process_tile(xi, yi, static, item, 8 * xi , 0)
 			yi += 1
 		end
 		yi = 0
@@ -83,19 +83,37 @@ function init_map()
 	end
 end
 
-function process_tile(xi, yi, static, item)
+function add_map_chunk(map_set, item_set)
+	local chunk = flr(rnd(map_chunks))
+	local start_point = map_set[#map_set].x + 8
+	local start_tile = chunk * map_strip_width + map_strip_startx
+
+	local xi = 0
+	local yi = 0
+	while xi <  map_strip_width do
+		while yi <  screenwidth / 8 do
+			process_tile(xi + start_tile, yi, static, item, xi * 8 + start_point , 0)
+			yi += 1
+		end
+		yi = 0
+		xi += 1
+	end
+
+end
+
+function process_tile(xi, yi, static, item, offset_x, offset_y)
 	local temp = mget (xi,yi)
 	--flag 2 is a collectable
 	if check_for_flag(temp, 2) then
 		item = {}
-		item.x = 8 * xi
-		item.y = 8 * yi
+		item.x = offset_x
+		item.y = 8 * yi + offset_y
 		item.spr_index = temp
 		add(items, item)
 	elseif check_for_flag(temp,1) then
 		static = {}
-		static.x = 8 * xi
-		static.y = 8 * yi
+		static.x = offset_x
+		static.y = 8 * yi + offset_y
 		static.spr_index = temp
 		add(statics, static)
 	elseif check_for_flag(temp, 8) then
@@ -108,6 +126,10 @@ function process_tile(xi, yi, static, item)
 end
 
 function map_shift()
+	if statics[#statics].x < 140 then
+		add_map_chunk(statics, items)
+	end
+
 	if cam.phase == 3 then
 		cam.phase = 4
 	elseif cam.phase == 4 then
@@ -245,7 +267,6 @@ function _init()
 	treasure = 0
 	dead = false
 	cam_goal = 0
-	built_chunks = 0
 	swinger = nil
 	hanger = nil
 
