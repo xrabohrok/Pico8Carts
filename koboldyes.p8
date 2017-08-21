@@ -33,13 +33,15 @@ buffer_size_tiles = 19
 global_rad = 4
 
 treasures = 0
-health = 40
-max_health = 6
+max_health = 40
+health = max_health
 invc_tmr_period = 30
 invc_tmr = 0
 dead = false
 hurt = false
 hurt_blink = false
+
+health_bar_width = 50
 
 go_final_y = 40
 go_curr_y = -40
@@ -489,6 +491,19 @@ function draw_game_over()
 	end
 end
 
+function draw_UI()
+
+
+	print("bling:" .. treasures, 7 + cam.x,5, orange_col)
+	print("health:" .. health, 45 + cam.x, 5, pink_col)
+
+	local percentage = health / max_health
+
+	rectfill (7 + cam.x, 5,  7 + cam.x + (percentage * health_bar_width), 10, red_col)
+
+
+end
+
 function _draw()
 	--trying to avoid position flicker by skipping a few frames
 	--if(cam.phase < 3) then
@@ -512,9 +527,8 @@ function _draw()
 
 	draw_game_over()
 
+	draw_UI()
 
-	print("bling:" .. treasures, 7 + cam.x,5, orange_col)
-	print("health:" .. health, 45 + cam.x, 5, pink_col)
 end
 __gfx__
 00900000000090000900009007000070000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000
