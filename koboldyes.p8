@@ -467,9 +467,17 @@ function item_draw_iter(thing)
 end
 
 function statics_draw_iter(thing)
-		--lava will sizzle, but for now drawing is enough
 		--rectfill(thing.x,thing.y, thing.x +8, thing.y+30, orange_col )
-		spr(thing.spr_index, thing.x, thing.y)
+		if(thing.spr_index == 43 or thing.spr_index == 44) then
+			--lava gloss
+			if(abs(cam.x + 64 - thing.x) < 20) then
+				spr(thing.spr_index + 16, thing.x, thing.y)
+			else
+				spr(thing.spr_index, thing.x, thing.y)
+			end
+		else
+			spr(thing.spr_index, thing.x, thing.y)
+		end
 end
 
 function draw_kobolds()
@@ -836,4 +844,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-
