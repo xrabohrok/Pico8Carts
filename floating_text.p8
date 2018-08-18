@@ -2,9 +2,37 @@ pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
 
-initialized = false
 lines = {}
 
+function _init()
+	echo = 100
+	color_seq = 
+		{3, 11, 1, 12,13}
+	
+	amplitude = 10
+	amplitude_shift = 3
+	period = 130
+	words = "does this work?"
+	
+	i = 0
+	while i < echo do
+		i += 1
+		
+		iter = setup_words( amplitude, 
+			period, 
+			words, 30, 35, 
+			color_seq[i % #color_seq])
+		iter.currentperiod = i % period
+		iter.vamplitude += i/amplitude_shift
+		add(lines, iter)
+	
+	end
+	lines[#lines].col = 7
+
+end
+
+
+-->8
 function setup_words(
 	amplitude,
 	period,
@@ -26,9 +54,6 @@ function setup_words(
 		return set
 
 end
-
-thing = setup_words( 10, 30, 
-	"blah ha ha", 30, 35, 7)
 
 function makedance(set)
 	x = 0
@@ -55,33 +80,6 @@ function makedance(set)
 end
 
 function _update()
-
-	if not initialized then
-		echo = 100
-		color_seq = 
-			{3, 11, 1, 12,13}
-		
-		amplitude = 10
-		amplitude_shift = 3
-		period = 130
-		words = "does this work?"
-		
-		i = 0
-		while i < echo do
-			i += 1
-			
-			iter = setup_words( amplitude, 
-				period, 
-				words, 30, 35, 
-				color_seq[i % #color_seq])
-			iter.currentperiod = i % period
-			iter.vamplitude += i/amplitude_shift
-			add(lines, iter)
-		
-		end
-		lines[#lines].col = 7
-		initialized = true
-	end
 
 end
 
