@@ -58,6 +58,10 @@ end
 
 -->8
 --update and draw
+function _init()
+	wall_init()
+end
+
 function _update()
 	
  current_phase += 1
@@ -65,12 +69,17 @@ function _update()
  	current_phase = 0
  	flipped = not flipped
  end
+ 
+ wall_update()
 
 end
 
 function _draw()
  cls()
  palt(0, true)
+ 
+ --tunnel effect
+ wall_draw()
  
  --draw backwards
  draw_logo_echo(logo_pos.x, logo_pos.y)
@@ -88,16 +97,20 @@ function _draw()
 
 
 	--sspr(73,1,111,15, 35, 62) 
-	draw_wiggle_text("do cool stuff",8,68)
-	draw_wiggle_text("like this!",15,75)
+	draw_wiggle_text("learn some",8,68)
+	draw_wiggle_text("neat things!",15,75)
 	
 	--details
-	rectfill(10, 95, 90, 115, 12)
-	rectfill(6, 90, 85, 110, 13)
+	pulse_period = spin_phase/2
+	pulse_phase = current_phase % pulse_period
+	pulse = 3 * cos(pulse_phase/pulse_period)
+	rectfill(30, 95 + pulse, 90, 115 +pulse, 12)
+	rectfill(26, 90+ pulse, 85, 110 +pulse, 13)
 	
-	print("this thursday ,12pm",8, 92 ,7)
- print("downtown south",8, 98 ,7)
- print("webex enabled",8, 104 ,7)
+	print("today!!!",28, 92 + pulse ,8)
+	print(",12pm",60, 92 + pulse ,7)
+ print("downtown south",28, 98 +pulse ,7)
+ print("webex enabled",28, 104 +pulse ,7)
 end
 -->8
 --hypman
@@ -189,6 +202,105 @@ function wobble_text(text,x, y, phase_disp, my_col)
 		y + text_amplitude * sin((text_phase-phase_disp)
 			/text_period),
 		my_col)
+end
+-->8
+--tunnel
+
+function make_wall()
+	wall = {}
+ --wall.last_color = 1
+ wall.cur_color = 1
+ wall.timer = 0
+ return wall
+end
+
+wall_cycle = 50
+
+all_walls={}
+wall_count = 10
+wall_colors = {4,5,1}
+ 
+adjust = 1
+
+function wall_init()
+	local i = 0
+	while i < wall_count do
+		i+= 1
+		local wall = make_wall()
+		wall.timer = i * (wall_cycle/wall_count)
+		wall.cur_color = new_color()
+		add(all_walls, wall)
+	end
+end
+
+function new_color()
+	return wall_colors[flr(rnd(#wall_colors))+1]
+end
+
+function update_walls(wall)
+	wall.timer += adjust
+	
+	if wall.timer > wall_cycle then
+		wall.timer = 0
+		wall.cur_color = new_color()
+	
+	elseif wall.timer < 0 then
+		wall.timer = wall_cycle
+		wall.cur_color = new_color()
+		
+	end
+end
+
+function wall_update()
+
+	foreach(all_walls, update_walls)
+	
+	if btnp(2) then
+		adjust +=.3
+	elseif btnp(3) then
+		adjust -= .3
+	end
+end
+
+function wall_draw()
+
+	local x = 1
+	local start = 0
+	local biggest = 0
+	while x <= #all_walls do
+		if(all_walls[x].timer > biggest) then
+			start = x
+			biggest = all_walls[x].timer
+		end
+		x += 1
+	end
+	
+	local count = 0
+	local j = start
+	
+	while count < #all_walls do
+		count +=1
+		
+		rectfill(
+				64 - 2*all_walls[j].timer
+			,64 - 2*all_walls[j].timer
+			,65 + 2*all_walls[j].timer 
+			,65 + 2*all_walls[j].timer,
+			all_walls[j].cur_color)
+			
+		--	if adjust > 0 then
+			j -= 1
+		--	else 
+		--		j += 1
+		--	end
+			
+			if j > #all_walls then
+				j = 1
+			elseif j < 1 then
+				j = #all_walls
+			end
+	end
+
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
